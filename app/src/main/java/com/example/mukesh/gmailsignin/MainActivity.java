@@ -24,6 +24,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "googleTest";
@@ -32,13 +34,9 @@ public class MainActivity extends AppCompatActivity {
     private int RC_SIGN_IN = 1;
     GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
-    // FirebaseAuth.AuthStateListener mAuthListner;
+     FirebaseAuth.AuthStateListener mAuthListner;
 
-    /*@Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListner);
-    }*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 signIn();
+                //nextActivity();
             }
         });
         signOut.setOnClickListener(new View.OnClickListener() {
@@ -70,6 +69,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+    private void nextActivity(FirebaseUser user) {
+        //signOut.setVisibility(View.VISIBLE);
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+        if (acct != null) {
+            String personName = acct.getDisplayName();
+            String personGivenName = acct.getGivenName();
+            String personFamilyName = acct.getFamilyName();
+            String personEmail = acct.getEmail();
+            String personId = acct.getId();
+            Uri personPhoto = acct.getPhotoUrl();
+            Intent intent = new Intent(this, LoggedInActivity.class);
+            String[] Details = {personName, personGivenName, personId, personEmail, personFamilyName};
+            intent.putExtra("googleDetails", Details);
+            startActivity(intent);
+        }
     }
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
@@ -106,7 +121,10 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                           // updateUI(user);
+                            nextActivity(user);
+
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -119,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void updateUI(FirebaseUser user) {
+    private void  updateUI(FirebaseUser user) {
         signOut.setVisibility(View.VISIBLE);
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
         if (acct != null) {
@@ -129,6 +147,8 @@ public class MainActivity extends AppCompatActivity {
             String personEmail = acct.getEmail();
             String personId = acct.getId();
             Uri personPhoto = acct.getPhotoUrl();
+
+
             Toast.makeText(this, "Name of the User :"+personName, Toast.LENGTH_SHORT).show();
         }
     }
